@@ -10,23 +10,20 @@ namespace PipeStreamProvider.MemoryCache
     class MySimpleQueueAdapterCache : IQueueAdapterCache
     {
         private readonly Logger _logger;
-        private readonly ConcurrentDictionary<QueueId, IQueueCache> _caches;
-
+        private IObjectPool<FixedSizeBuffer> bufferPool;
 
         public MySimpleQueueAdapterCache(IQueueAdapterFactory factory, Logger logger)
         {
-            this._logger = logger;
-            _caches = new ConcurrentDictionary<QueueId, IQueueCache>();
+            _logger = logger;
+            // 10 meg buffer pool.  10 1 meg blocks
+            bufferPool = new FixedSizeObjectPool<FixedSizeBuffer>(10, pool => new FixedSizeBuffer(1 << 20, pool));
         }
 
         public IQueueCache CreateQueueCache(QueueId queueId)
         {
-            return _caches.AddOrUpdate(queueId, (id) => new QueueCache(id, _logger), (id, queueCache) => queueCache);
+            return new FastPipeQueueCache(bufferPool, queueId);
         }
 
-        public int Size
-        {
-            get { return _caches.Select(pair => pair.Value.Size).Sum(); }
-        }
+        public int Size => 0; // FIXME
     }
 }

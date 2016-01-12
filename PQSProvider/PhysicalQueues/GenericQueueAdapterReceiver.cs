@@ -48,10 +48,10 @@ namespace PipeStreamProvider.PhysicalQueues
                     _logger.AutoWarn("The queue returned a null message. This shouldn't happen. Ignored.");
             }
 
-            var list = (from m in listOfMessages select SerializationManager.DeserializeFromByteArray<PipeQueueAdapterBatchContainer>(m));
-            var pipeQueueAdapterBatchContainers = list as IList<PipeQueueAdapterBatchContainer> ?? list.ToList();
+            var list = (from m in listOfMessages select SerializationManager.DeserializeFromByteArray<PlainBatchContainer>(m));
+            var pipeQueueAdapterBatchContainers = list as IList<PlainBatchContainer> ?? list.ToList();
             foreach (var batchContainer in pipeQueueAdapterBatchContainers)
-                batchContainer.SimpleSequenceToken = new SimpleSequenceToken(_sequenceId++);
+                batchContainer.RealToken = new SimpleSequenceToken(_sequenceId++);
 
             _logger.AutoVerbose($"Read {pipeQueueAdapterBatchContainers.Count} batch containers");
             // TODO: Is this an expensive call?

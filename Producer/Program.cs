@@ -24,7 +24,7 @@ namespace Producer
                 }
             }
 
-            var providerName = "PQSProvider";
+            var providerName = "FPSProvider";
             var streamId = new Guid("00000000-0000-0000-0000-000000000000");
 
             var provider = GrainClient.GetStreamProvider(providerName);

@@ -5,7 +5,7 @@ using Orleans.Providers.Streams.Common;
 
 namespace PipeStreamProvider
 {
-    public class PipeStreamProvider : PersistentStreamProvider<PipeQueueAdapterFactory>
+    public class FastPipeStreamProvider : PersistentStreamProvider<FastPipeQueueAdapterFactory>
     {
 
     }

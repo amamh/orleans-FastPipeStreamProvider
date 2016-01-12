@@ -51,7 +51,7 @@ namespace PipeStreamProvider.PhysicalQueues
 
             var eventsAsObjects = events.Cast<object>().ToList();
 
-            var container = new PipeQueueAdapterBatchContainer(streamGuid, streamNamespace, eventsAsObjects, requestContext);
+            var container = new PlainBatchContainer(streamGuid, streamNamespace, eventsAsObjects);//, requestContext);
 
             var bytes = SerializationManager.SerializeToByteArray(container);
 

@@ -8,7 +8,7 @@ using StackExchange.Redis;
 
 namespace PipeStreamProvider
 {
-    public class PipeQueueAdapterFactory : IQueueAdapterFactory
+    public class FastPipeQueueAdapterFactory : IQueueAdapterFactory
     {
         //private const string CacheSizeParam = "CacheSize";
         //private const int DefaultCacheSize = 4096;
@@ -25,10 +25,6 @@ namespace PipeStreamProvider
         private const string RedisDbParam = "RedisDb";
         private const int DefaultRedisDb = -1;
         private int _databaseNum;
-
-        private const string UseRedisForCacheParam = "UseRedisForCache";
-        private const bool DefaultUseRedisForCache = false;
-        private bool _useRedisForCache;
 
         // TODO: This should be an enum to choose which physical queue to use
         private const string UseRedisForQueueParam = "UseRedisForQueue";
@@ -69,15 +65,6 @@ namespace PipeStreamProvider
                     throw new ArgumentException($"{NumQueuesParam} invalid.  Must be int");
             }
 
-            // Use Redis for cache?
-            string useRedisCache;
-            _useRedisForCache = DefaultUseRedisForCache;
-            if (config.Properties.TryGetValue(UseRedisForCacheParam, out useRedisCache))
-            {
-                if (!bool.TryParse(useRedisCache, out _useRedisForCache))
-                    throw new ArgumentException($"{UseRedisForCacheParam} invalid value {useRedisCache}");
-            }
-
             // Use Redis for queue?
             string useRedis;
             _useRedisForQueue = DefaultUseRedisForQueue;
@@ -87,12 +74,8 @@ namespace PipeStreamProvider
                     throw new ArgumentException($"{UseRedisForQueueParam} invalid value {useRedis}");
             }
 
-            if (_useRedisForCache)
+            if (_useRedisForQueue)
                 ReadRedisConnectionParams(config);
-
-            //if (_useRedisForQueue)
-            //    // this will be a duplicate step if we are using redis for cache, but it's better to separate the logic
-            //    ReadRedisConnectionParams(config);
 
             _streamQueueMapper = new HashRingBasedStreamQueueMapper(_numQueues, providerName);
         }
@@ -144,12 +127,6 @@ namespace PipeStreamProvider
 
         public IQueueAdapterCache GetQueueAdapterCache()
         {
-            if (_useRedisForCache)
-            {
-                MakeSureRedisConnected();
-                return _adapterCache ?? (_adapterCache = new RedisCache.QueueAdapterCacheRedis(_logger, _redisDb));
-            }
-
             return _adapterCache ?? (_adapterCache = new MemoryCache.MySimpleQueueAdapterCache(this, _logger));
         }
 

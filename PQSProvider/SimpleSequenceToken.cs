@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 namespace PipeStreamProvider
 {
     // Same as EventSequenceToken
+    // TODO: Remove this class and use EventSequenceToken
     [Serializable]
     public class SimpleSequenceToken : StreamSequenceToken
     {

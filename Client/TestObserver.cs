@@ -10,12 +10,12 @@ namespace Client
     {
         public async Task Subscribe()
         {
-            var providerName = "PQSProvider";
+            var providerName = "FPSProvider";
             var streamId = new Guid("00000000-0000-0000-0000-000000000000");
 
             var provider = GrainClient.GetStreamProvider(providerName);
             var stream = provider.GetStream<int>(streamId, "GlobalNamespace");
-            await stream.SubscribeAsync(this);
+            await stream.SubscribeAsync(this, new PipeStreamProvider.SimpleSequenceToken(0));
         }
 
         public Task OnNextAsync(int item, StreamSequenceToken token = null)
