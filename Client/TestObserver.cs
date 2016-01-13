@@ -18,20 +18,38 @@ namespace Client
             await stream.SubscribeAsync(this, new PipeStreamProvider.SimpleSequenceToken(0));
         }
 
+        bool firstMessage = false;
+        DateTime t1, t2;
+
         public Task OnNextAsync(int item, StreamSequenceToken token = null)
         {
-            Console.WriteLine($"{item}");
+            if (!firstMessage)
+            {
+                firstMessage = true;
+                t1 = DateTime.UtcNow;
+            }
+
+            //Console.WriteLine($"{item}");
+
+            if (item % 10000 == 0)
+            {
+                t2 = DateTime.UtcNow;
+                Console.WriteLine($"New mark set. Time since last mark: {(t2 - t1).TotalMilliseconds}");
+                t1 = t2;
+            }
+
             return TaskDone.Done;
         }
 
         public Task OnCompletedAsync()
         {
-            throw new NotImplementedException();
+            return TaskDone.Done;
         }
 
         public Task OnErrorAsync(Exception ex)
         {
-            throw new NotImplementedException();
+            Console.WriteLine(ex);
+            return TaskDone.Done;
         }
     }
 }

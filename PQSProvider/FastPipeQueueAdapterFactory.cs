@@ -39,6 +39,7 @@ namespace PipeStreamProvider
         private IDatabase _redisDb;
         private IProviderConfiguration _config;
         private IServiceProvider _serviceProvider;
+        private IStreamFailureHandler _failureHandler;
 
         public void Init(IProviderConfiguration config, string providerName, Logger logger, IServiceProvider serviceProvider)
         {
@@ -137,17 +138,19 @@ namespace PipeStreamProvider
 
         public Task<IStreamFailureHandler> GetDeliveryFailureHandler(QueueId queueId)
         {
-            return Task.FromResult<IStreamFailureHandler>(new LoggerStreamFailureHandler(_logger));
+            return Task.FromResult<IStreamFailureHandler>(
+                _failureHandler ?? (_failureHandler = new LoggerStreamFailureHandler(_logger))
+                );
         }
 
-        private void MakeSureRedisConnected()
-        {
-            if (_redisConn?.IsConnected == true)
-                return;
+        //private void MakeSureRedisConnected()
+        //{
+        //    if (_redisConn?.IsConnected == true)
+        //        return;
 
-            // Note: using non-async Connect doesn't work
-            _redisConn = ConnectionMultiplexer.ConnectAsync(_server).Result;
-            _redisDb = _redisConn.GetDatabase(_databaseNum);
-        }
+        //    // Note: using non-async Connect doesn't work
+        //    _redisConn = ConnectionMultiplexer.ConnectAsync(_server).Result;
+        //    _redisDb = _redisConn.GetDatabase(_databaseNum);
+        //}
     }
 }
